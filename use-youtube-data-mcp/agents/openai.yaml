@@ -1,0 +1,4 @@
+interface:
+  display_name: "Use YouTube Data MCP"
+  short_description: "自助配置并使用 YouTube Data MCP，自动检查更新与能力发现"
+  default_prompt: "Install and verify the YouTube Data MCP automatically, then run tool list and patch notes checks."

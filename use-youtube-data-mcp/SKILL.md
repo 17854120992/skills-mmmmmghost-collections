@@ -1,30 +1,33 @@
 ---
 name: use-youtube-data-mcp
-description: Configure and use the hosted YouTube Data MCP end-to-end with minimal user input. Use when users want the agent to automatically set up MCP server config (Windows/macOS, Cursor/Codex/OpenClaw/OpenCode), request API key at setup time, run post-install capability discovery (`tools/list` and `get_patch_notes`), self-update this skill from GitHub, and install helper skills for document/spreadsheet I/O.
+description: Configure and use the hosted YouTube Data MCP end-to-end with minimal user input. Use when users want the agent to verify Node.js and `npx`, configure MCP server config (Windows/macOS, Cursor/Codex/OpenClaw/OpenCode), request API key at setup time, run post-install capability discovery (`tools/list` and `get_patch_notes`), and then strongly recommend helper skill and Python setup for full local document and spreadsheet workflows.
 ---
 
 # Use YouTube Data MCP
 
 ## Workflow
 
-1. Run self-update check for this skill.
+1. Confirm Node.js is installed and `npm` and `npx` work.
 1. Ask user for API key only when missing.
 1. Detect client and OS, then write MCP config.
-1. Install helper skills (`doc`, `spreadsheet`, and user-provided extra skill URLs).
 1. Verify MCP connectivity and run capability discovery:
    - `tools/list`
    - `get_patch_notes`
+1. Strongly recommend helper skill and Python dependency setup for users who want the full local document and spreadsheet workflow.
 1. Explain to user how to use current MCP abilities in plain language.
 
-## Step 1: Self Update
-- Try updating this skill directly from GitHub path:
+## Step 1: Confirm Node.js Tooling
+- Assume this skill has already been installed with `npx skills add ...`. Do not try to self-update or reinstall this skill unless the user explicitly asks.
+- First check the latest stable Node.js release using an official Node.js source when internet access is available.
+- Then verify local tooling:
 ```bash
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --repo 17854120992/mcp_youtube_data \
-  --path skills/use-youtube-data-mcp \
-  --method auto
+node -v
+npm -v
+npx -v
 ```
-- If the repo is private and no credential exists, continue with current local skill and tell user to provide GitHub token or switch to a public skill repo.
+- If `node` is missing, tell the user to install Node.js first and then rerun the checks.
+- If `node` exists but `npm` or `npx` fails, treat the local Node.js installation as incomplete and tell the user to repair or reinstall it.
+- After Node.js is confirmed, continue with MCP setup. Do not block on Python here.
 
 ## Step 2: Ask For API Key
 - If API key is not already provided in env or config, ask user once:
@@ -39,29 +42,7 @@ python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-githu
   - Header: `Authorization: Bearer <API_KEY>`
   - Transport: Streamable HTTP (or tool-specific equivalent)
 
-## Step 4: Install Helper Skills
-- Install helper skills directly:
-```bash
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --repo openai/skills --path skills/.curated/doc --method auto
-
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --repo openai/skills --path skills/.curated/spreadsheet --method auto
-```
-- Optional extra skills:
-```bash
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --url https://github.com/anthropics/skills/tree/main/skills/docx --method auto
-
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --url https://github.com/anthropics/skills/tree/main/skills/xlsx --method auto
-
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --url https://github.com/anthropics/skills/tree/main/skills/pptx --method auto
-```
-- Remind user to restart Codex after skill install/update.
-
-## Step 5: Post-Install Capability Discovery
+## Step 4: Post-Install Capability Discovery
 - Immediately call:
   - `tools/list`
   - `get_patch_notes`
@@ -70,14 +51,36 @@ python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-githu
   - Which tools support batch input
   - Recommended usage patterns for the current release
 
+## Step 5: Strongly Recommended Local File Workflow Setup
+- For most users, strongly recommend this step after MCP setup succeeds. It enables the full local document and spreadsheet workflow around the MCP.
+- Install optional helper skills with public GitHub URLs:
+```bash
+npx -y skills add https://github.com/anthropics/skills/tree/main/skills/docx --yes
+npx -y skills add https://github.com/anthropics/skills/tree/main/skills/xlsx --yes
+npx -y skills add https://github.com/anthropics/skills/tree/main/skills/pptx --yes
+```
+- If the active agent requires explicit targets, add the same `--agent ... --global` options the user used for the main skill install.
+- Explain that helper skill installation is separate from MCP setup. The YouTube Data MCP is already usable even before these helpers are installed, but most users will benefit from adding them.
+- For Python-backed spreadsheet workflows, assume Python may be missing and verify the interpreter first:
+```bash
+python3 --version
+```
+- If `python3` is unavailable, also check:
+```bash
+python --version
+```
+- If neither `python3` nor `python` is available, ask the agent to search for the latest official Python installation method for the user's current OS before giving instructions.
+- If Python is available but the spreadsheet stack is missing, ask the agent to search for the latest recommended install method for `pandas` and `openpyxl` on the user's current platform before giving instructions.
+
 ## Step 6: User Briefing Template
 - Tell user:
   - Besides subtitle fetching, most tools support batch inputs.
   - User can paste multiple links directly in chat.
-  - User can also provide Excel/CSV/DOCX for link extraction.
-  - Results can be written back to local DOCX/Excel with helper skills.
+  - User can also provide Excel, CSV, and DOCX for link extraction after the strongly recommended helper setup.
+  - Results can be written back to local DOCX or Excel after the strongly recommended helper setup.
 
 ## Notes
 - Keep subtitle mode as single-video per request unless project rules change.
 - If a client config path is uncertain, scan candidate config files and pick the one that already contains MCP settings first.
 - After changing client config, remind user to restart the client if required.
+- Do not assume Codex-specific directories exist. Use agent-neutral commands unless the user explicitly states a client-specific path.

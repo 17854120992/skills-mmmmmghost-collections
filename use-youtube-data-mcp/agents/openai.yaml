@@ -1,4 +1,4 @@
 interface:
   display_name: "Use YouTube Data MCP"
-  short_description: "自助配置并使用 YouTube Data MCP，自动检查更新与能力发现"
-  default_prompt: "Install and verify the YouTube Data MCP automatically, then run tool list and patch notes checks."
+  short_description: "检查 Node.js 并配置 YouTube Data MCP，随后完成能力发现与可选依赖引导"
+  default_prompt: "Verify Node.js, configure and validate the YouTube Data MCP, then inspect available tools and explain optional helper skill and Python setup."

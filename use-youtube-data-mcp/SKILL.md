@@ -25,8 +25,9 @@ node -v
 npm -v
 npx -v
 ```
-- If `node` is missing, tell the user to install Node.js first and then rerun the checks.
-- If `node` exists but `npm` or `npx` fails, treat the local Node.js installation as incomplete and tell the user to repair or reinstall it.
+- If `node` is missing, the agent should install Node.js directly instead of asking the user to do it manually.
+- If installation requires elevated permissions, the agent should request permission and then perform the installation itself once permission is granted.
+- If `node` exists but `npm` or `npx` fails, treat the local Node.js installation as incomplete and have the agent repair or reinstall Node.js directly instead of sending the user away to do it.
 - After Node.js is confirmed, continue with MCP setup. Do not block on Python here.
 
 ## Step 2: Ask For API Key

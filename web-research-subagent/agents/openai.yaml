@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Search Relay"
+  short_description: "Delegate web search with concise relay"
+  default_prompt: "Delegate online research to a subagent and return concise, source-backed findings only."
